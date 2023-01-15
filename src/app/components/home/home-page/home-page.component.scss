@@ -1,0 +1,23 @@
+.body {
+    background-image: url("./assets/images/wallpaperflare.com_wallpaper.jpg");
+    font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+}
+
+.title {
+    text-align: center;
+    font-size: xx-large;
+
+}
+
+.message {
+    position: relative;
+    width: 0;
+    min-width: 825px;
+    height:700px;
+    text-align: right;
+    float: right;
+    margin-left:3.7%;
+    margin-right:3.7%;
+    padding-left:0.5%;
+    padding-right:0.5%;
+}
