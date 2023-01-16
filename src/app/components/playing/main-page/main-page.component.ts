@@ -1,4 +1,4 @@
-import { Deck, cards } from './../../../core/interfaces/deck-interface';
+import { Deck, cards, Card } from './../../../core/interfaces/deck-interface';
 import { Component, OnInit } from '@angular/core';
 import { DeckAPIService } from 'src/app/core/services/deck-api.service';
 
@@ -7,17 +7,21 @@ import { DeckAPIService } from 'src/app/core/services/deck-api.service';
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss']
 })
+
 export class MainPageComponent implements OnInit{
 
   public deck!:Deck;
 
-  public Dealer: {cards:cards[], pontuacao:number} = {
+  public Dealer: {cards:cards[], pontuacao:number, finished: boolean} = {
     cards: [],
-    pontuacao: 0
+    pontuacao: 0,
+    finished: false
   };
-  public Player: {cards:cards[], pontuacao:number} = {
+
+  public Player: {cards:any[], pontuacao:number, finished: boolean} = {
     cards: [],
-    pontuacao: 0
+    pontuacao: 0,
+    finished: false
   };
 
   constructor(private deckAPI:DeckAPIService){}
@@ -26,27 +30,8 @@ export class MainPageComponent implements OnInit{
     this.newDeck()
   }
 
-  public drawCard(numberOfCards:number, WhosPlaying:string){
-    this.deckAPI.draw_Card(this.deck.deck_id, numberOfCards).subscribe({
-      next: (res) => {
-        console.log(res);
-        if( WhosPlaying == "player"){
-          this.Player.cards.push(res.cards)
-          console.log(this.Player)
-        }
-        else if( WhosPlaying == "dealer"){
-          this.Dealer.cards.push(res.cards)
-          console.log(this.Dealer)
-        }
-      },
-      error: (err) => {
-        console.log(err)
-      }
-    })
-  }
-
   public newDeck(){
-    this.deckAPI.getDeck().subscribe({
+    this.deckAPI.get_deck().subscribe({
       next: (res:Deck) => {
         this.deck = res
         console.log(this.deck)
@@ -58,17 +43,79 @@ export class MainPageComponent implements OnInit{
   }
 
   public onStart(){
-    this.Dealer = {cards:[], pontuacao: 0}
-    this.Player = {cards:[], pontuacao: 0}
+    this.deckAPI.suffle_deck(this.deck.deck_id)
+
+    this.Dealer = {cards:[], pontuacao: 0, finished:false}
+    this.Player = {cards:[], pontuacao: 0, finished:false}
+
     this.drawCard(2, 'player')
     this.drawCard(2, 'dealer')
   }
 
-  public pointCounter() {
-    this.Player.cards.forEach(element => {
-      if(element.cards){
-
+  public drawCard(numberOfCards:number, WhosPlaying:string){
+    this.deckAPI.draw_Card(this.deck.deck_id, numberOfCards).subscribe({
+      next: (res) => {
+        if( WhosPlaying == "player"){
+          res.cards.forEach(card => {
+            this.Player.cards.push(card)
+          })
+          this.count_points()
+        }
+        else if( WhosPlaying == "dealer"){
+          res.cards.forEach(card => {
+            this.Dealer.cards.push(card)
+          })
+          this.count_points()
+        }
+      },
+      error: (err) => {
+        console.log(err)
       }
-    });
+    })
   }
+
+  public stop(){
+    this.Player.finished = true
+  }
+
+  public count_points(){
+    this.Player.pontuacao = 0
+    this.Dealer.pontuacao = 0
+
+    const NotIntegerCards = ['ACE', 'JACK', 'QUEEN', 'KING']
+    this.Player.cards.forEach(card => {
+      if(NotIntegerCards.includes(card.value)){
+        this.Player.pontuacao += 10
+      }else{
+        this.Player.pontuacao += Number(card.value)
+      }
+
+      if(this.Player.pontuacao >= 21){
+        this.Player.finished = true
+      }
+
+    })
+
+    this.Dealer.cards.forEach(card => {
+      if(NotIntegerCards.includes(card.value)){
+        this.Dealer.pontuacao += 10
+      }else{
+        this.Dealer.pontuacao += Number(card.value)
+      }
+
+      if(this.Dealer.pontuacao >= 17){
+        this.Dealer.finished = true
+      }
+
+    })
+
+    if(this.Player.finished == true && this.Dealer.finished == false){
+      this.drawCard(1, 'dealer')
+    }
+
+    console.log(this.Player)
+    console.log(this.Dealer)
+  }
+
+
 }

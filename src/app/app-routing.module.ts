@@ -4,8 +4,8 @@ import { MainPageComponent } from './components/playing/main-page/main-page.comp
 import { HomePageComponent } from './components/home/home-page/home-page.component';
 
 const routes: Routes = [
-  {path: 'home-page', component:HomePageComponent},
-  {path: '', component:MainPageComponent}
+  {path: '', component:HomePageComponent},
+  {path: 'play', component:MainPageComponent}
 ];
 
 @NgModule({

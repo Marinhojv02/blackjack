@@ -5,22 +5,21 @@ export interface Deck {
   shuffled: boolean
 }
 export interface Card {
+  [prop: string]: any,
   success: boolean,
   deck_id: string,
-  cards: cards,
+  cards: cards[],
   remaining: number
 }
+
 export interface cards {
-  cards: [
-    {
-      code: string,
-      image: string,
-      images: {
-        svg: string,
-        png: string
-      },
-      value: string,
-      suit: string
-    },
-  ]
+  code: string,
+  image: string,
+  images: {
+    svg: string,
+    png: string
+  },
+  value: string,
+  suit: string
 }
+
